@@ -1,6 +1,6 @@
 {
-    "name": "Marcadores",
-    "description": "guarda todas las pestañas abiertas a favoritos",
+    "name": "Favoritos",
+    "description": "Una nueva forma de guardar favoritos.",
     "version": "1.0",
     "manifest_version": 3,
     "background": {
@@ -10,10 +10,10 @@
         "bookmarks",
         "tabs",
         "activeTab",
-        "scripting"
+        "scripting",
+        "contextMenus"
     ],
     "action": {
-        "default_popup":"popup.html",
         "default_icon": {
             "16": "/images/get_started16.png",
             "32": "/images/get_started32.png",
