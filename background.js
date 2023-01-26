@@ -21,7 +21,7 @@ async function activeTab() {
     let [tab] = await chrome.tabs.query(queryOptions);
     const { id, title, url } = tab;
     createBookmark(title, url)
-    chrome.tabs.remove(id)
+    chrome.tabs.remove(id);
 }
 
 async function allTabs(queryOptions) {
@@ -42,12 +42,16 @@ function createBookmark(title, url) {
     })
 }
 
+function callAdmin() {
+    chrome.tabs.create({
+        'url': 'chrome://bookmarks/?id=2'
+    })
+}
+
 chrome.contextMenus.onClicked.addListener((info, tab) => {
     if (info.menuItemId === 'allTabs') {
         allTabs({ currentWindow: true });
-        chrome.tabs.create({
-            'url': 'chrome://bookmarks/?id=2'
-        })
+        callAdmin();
     }
     if (info.menuItemId === 'activeTab') {
         activeTab();
@@ -59,7 +63,5 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
 
 chrome.action.onClicked.addListener(() => {
     allTabs({ currentWindow: true });
-    chrome.tabs.create({
-        'url': 'chrome://bookmarks/?id=2'
-    })
+    callAdmin();
 });
