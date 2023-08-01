@@ -41,10 +41,8 @@ function callAdmin() {
     })
 }
 
-
 async function activeTab() {
-    let queryOptions = { active: true, lastFocusedWindow: true };
-    let [tab] = await chrome.tabs.query(queryOptions);
+    let [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
     const { id, title, url } = tab;
     createBookmark(title, url)
     chrome.tabs.remove(id);
@@ -52,12 +50,10 @@ async function activeTab() {
 
 async function allTabs(queryOptions) {
     let allTabs = await chrome.tabs.query(queryOptions);
-    allTabs.then((tabs) => {
-        for (let tab of tabs) {
-            const { id, title, url } = tab;
-            createBookmark(title, url);
-            chrome.tabs.remove(id);
-        }
+    allTabs.forEach(tab => {
+        const { id, title, url } = tab;
+        createBookmark(title, url);
+        chrome.tabs.remove(id);
     })
 }
 
@@ -66,6 +62,7 @@ async function saveAndCloseTabs(direction) {
     let allTabs = await chrome.tabs.query({ currentWindow: true });
 
     const activeTabIndex = allTabs.findIndex(tab => tab.id === currentTab.id);
+    let tabsToSave = [];
 
     if (direction === "right") {
         tabsToSave = allTabs.slice(activeTabIndex + 1);
@@ -74,8 +71,9 @@ async function saveAndCloseTabs(direction) {
     }
 
     tabsToSave.forEach(tab => {
-        createBookmark(tab.title, tab.url);
-        chrome.tabs.remove(tab.id);
+        const { id, title, url } = tab;
+        createBookmark(title, url);
+        chrome.tabs.remove(id);
     });
 }
 
