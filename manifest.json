@@ -1,6 +1,6 @@
 {
-    "name": "Favoritos",
-    "description": "Una nueva forma de guardar favoritos.",
+    "name": "Smart Tab Manager",
+    "description": "Smart Tab Manager",
     "version": "1.0",
     "manifest_version": 3,
     "background": {
