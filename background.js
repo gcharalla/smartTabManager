@@ -1,31 +1,26 @@
 chrome.contextMenus.create({
-    "title": "Save all tabs",
-    "contexts": ["all"],
-    "id": "allTabs",
+    title: 'Save all tabs',
+    id: 'all'
 });
 
 chrome.contextMenus.create({
-    "title": "Save active tab",
-    "contexts": ["all"],
-    "id": "activeTab"
+    title: 'Save active tab',
+    id: 'active'
 });
 
 chrome.contextMenus.create({
-    "title": "Save all except active tab",
-    "contexts": ["all"],
-    "id": "allTabsExceptActive"
+    title: 'Save all except active tab',
+    id: 'allExceptActive'
 });
 
 chrome.contextMenus.create({
-    "title": "save all tabs to the right of the active tab",
-    "contexts": ["all"],
-    "id": "allTabsRigth"
+    title: 'Save all tabs to the right of the active tab',
+    id: 'rigth'
 });
 
 chrome.contextMenus.create({
-    "title": "save all tabs to the left of the active tab",
-    "contexts": ["all"],
-    "id": "allTabsLeft"
+    title: 'Save all tabs to the left of the active tab',
+    id: 'left'
 });
 
 function createBookmark(title, url) {
@@ -77,21 +72,21 @@ async function saveAndCloseTabs(direction) {
     });
 }
 
-chrome.contextMenus.onClicked.addListener((info, tab) => {
-    if (info.menuItemId === 'allTabs') {
+chrome.contextMenus.onClicked.addListener((info) => {
+    if (info.menuItemId === 'all') {
         allTabs({ currentWindow: true });
         callAdmin();
     }
-    if (info.menuItemId === 'activeTab') {
+    if (info.menuItemId === 'active') {
         activeTab();
     }
-    if (info.menuItemId === 'allTabsExceptActive') {
+    if (info.menuItemId === 'allExceptActive') {
         allTabs({ active: false });
     }
-    if (info.menuItemId === 'allTabsRigth') {
+    if (info.menuItemId === 'rigth') {
         saveAndCloseTabs('right');
     }
-    if (info.menuItemId === 'allTabsLeft') {
+    if (info.menuItemId === 'left') {
         saveAndCloseTabs('left');
     }
 })
