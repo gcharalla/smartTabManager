@@ -1,26 +1,28 @@
-chrome.contextMenus.create({
-    title: 'Save all tabs',
-    id: 'all'
-});
+chrome.runtime.onInstalled.addListener(() => {
+    chrome.contextMenus.create({
+        title: 'Save all tabs',
+        id: 'all'
+    });
 
-chrome.contextMenus.create({
-    title: 'Save active tab',
-    id: 'active'
-});
+    chrome.contextMenus.create({
+        title: 'Save active tab',
+        id: 'active'
+    });
 
-chrome.contextMenus.create({
-    title: 'Save all except active tab',
-    id: 'allExceptActive'
-});
+    chrome.contextMenus.create({
+        title: 'Save all except active tab',
+        id: 'allExceptActive'
+    });
 
-chrome.contextMenus.create({
-    title: 'Save all tabs to the right of the active tab',
-    id: 'rigth'
-});
+    chrome.contextMenus.create({
+        title: 'Save all tabs to the right of the active tab',
+        id: 'rigth'
+    });
 
-chrome.contextMenus.create({
-    title: 'Save all tabs to the left of the active tab',
-    id: 'left'
+    chrome.contextMenus.create({
+        title: 'Save all tabs to the left of the active tab',
+        id: 'left'
+    });
 });
 
 function createBookmark(title, url) {
