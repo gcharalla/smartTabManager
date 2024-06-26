@@ -23,10 +23,26 @@ chrome.runtime.onInstalled.addListener(() => {
         title: 'Save all tabs to the left of the active tab',
         id: 'left'
     });
+
+    chrome.contextMenus.create({
+        title: 'Save session',
+        id: 'saveSession'
+    });
 });
+
+let savedSessionFolderId
+
+function saveSession() {
+    chrome.bookmarks.create({
+        'title': 'Saved session'
+    }, function (newFolder) {
+        savedSessionFolderId = newFolder.id;
+    });
+}
 
 function createBookmark(title, url) {
     chrome.bookmarks.create({
+        'parentId': savedSessionFolderId,
         'title': title,
         'url': url
     })
@@ -47,6 +63,7 @@ async function activeTab() {
 
 async function allTabs(queryOptions) {
     let allTabs = await chrome.tabs.query(queryOptions);
+
     allTabs.forEach(tab => {
         const { id, title, url } = tab;
         createBookmark(title, url);
@@ -90,6 +107,11 @@ chrome.contextMenus.onClicked.addListener((info) => {
     }
     if (info.menuItemId === 'left') {
         saveAndCloseTabs('left');
+    }
+    if (info.menuItemId === 'saveSession') {
+        saveSession();
+        allTabs({ currentWindow: true });
+        callAdmin();
     }
 })
 
