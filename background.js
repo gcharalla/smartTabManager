@@ -1,3 +1,63 @@
+const createFolder = () => {
+    return new Promise((resolve) => {
+        chrome.bookmarks.create({
+            title: 'Saved Session',
+        }, (newFolder) => {
+            resolve(newFolder.id);
+        });
+    });
+}
+
+const createBookmark = (title, url, folderId) => {
+    chrome.bookmarks.create({
+        'parentId': folderId || null,
+        'title': title,
+        'url': url
+    })
+}
+
+const callAdmin = () => {
+    chrome.tabs.create({
+        'url': 'chrome://bookmarks/?id=2'
+    })
+}
+
+const activeTab = async () => {
+    let [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
+    const { id, title, url } = tab;
+    createBookmark(title, url)
+    chrome.tabs.remove(id);
+}
+
+const allTabs = async (queryOptions, folderId) => {
+    let allTabs = await chrome.tabs.query(queryOptions);
+    allTabs.forEach(tab => {
+        const { id, title, url } = tab;
+        createBookmark(title, url, folderId);
+        chrome.tabs.remove(id);
+    })
+}
+
+const saveAndCloseTabs = async (direction) => {
+    let [currentTab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
+    let allTabs = await chrome.tabs.query({ currentWindow: true });
+
+    const activeTabIndex = allTabs.findIndex(tab => tab.id === currentTab.id);
+    let tabsToSave = [];
+
+    if (direction === "right") {
+        tabsToSave = allTabs.slice(activeTabIndex + 1);
+    } else if (direction === "left") {
+        tabsToSave = allTabs.slice(0, activeTabIndex);
+    }
+
+    tabsToSave.forEach(tab => {
+        const { id, title, url } = tab;
+        createBookmark(title, url);
+        chrome.tabs.remove(id);
+    });
+}
+
 chrome.runtime.onInstalled.addListener(() => {
     chrome.contextMenus.create({
         title: 'Save all tabs',
@@ -30,67 +90,6 @@ chrome.runtime.onInstalled.addListener(() => {
     });
 });
 
-let savedSessionFolderId
-
-function saveSession() {
-    chrome.bookmarks.create({
-        'title': 'Saved session'
-    }, function (newFolder) {
-        savedSessionFolderId = newFolder.id;
-    });
-}
-
-function createBookmark(title, url) {
-    chrome.bookmarks.create({
-        'parentId': savedSessionFolderId,
-        'title': title,
-        'url': url
-    })
-}
-
-function callAdmin() {
-    chrome.tabs.create({
-        'url': 'chrome://bookmarks/?id=2'
-    })
-}
-
-async function activeTab() {
-    let [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
-    const { id, title, url } = tab;
-    createBookmark(title, url)
-    chrome.tabs.remove(id);
-}
-
-async function allTabs(queryOptions) {
-    let allTabs = await chrome.tabs.query(queryOptions);
-
-    allTabs.forEach(tab => {
-        const { id, title, url } = tab;
-        createBookmark(title, url);
-        chrome.tabs.remove(id);
-    })
-}
-
-async function saveAndCloseTabs(direction) {
-    let [currentTab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
-    let allTabs = await chrome.tabs.query({ currentWindow: true });
-
-    const activeTabIndex = allTabs.findIndex(tab => tab.id === currentTab.id);
-    let tabsToSave = [];
-
-    if (direction === "right") {
-        tabsToSave = allTabs.slice(activeTabIndex + 1);
-    } else if (direction === "left") {
-        tabsToSave = allTabs.slice(0, activeTabIndex);
-    }
-
-    tabsToSave.forEach(tab => {
-        const { id, title, url } = tab;
-        createBookmark(title, url);
-        chrome.tabs.remove(id);
-    });
-}
-
 chrome.contextMenus.onClicked.addListener((info) => {
     if (info.menuItemId === 'all') {
         allTabs({ currentWindow: true });
@@ -109,9 +108,11 @@ chrome.contextMenus.onClicked.addListener((info) => {
         saveAndCloseTabs('left');
     }
     if (info.menuItemId === 'saveSession') {
-        saveSession();
-        allTabs({ currentWindow: true });
-        callAdmin();
+        (async () => {
+            const folderId = await createFolder();
+            allTabs({ currentWindow: true }, folderId);
+            callAdmin();
+        })();
     }
 })
 
